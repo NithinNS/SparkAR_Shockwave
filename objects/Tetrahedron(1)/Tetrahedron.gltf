@@ -1,0 +1,117 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.0.5",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Tetrahedron"
+        }
+    ],
+    "materials" : [
+        {
+            "alphaMode" : "BLEND",
+            "name" : "Tetrahedron_mat",
+            "pbrMetallicRoughness" : {
+                "baseColorFactor" : [
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                "metallicFactor" : 0.10000000149011612,
+                "roughnessFactor" : 0.5
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Mesh",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 12,
+            "max" : [
+                0.02155451290309429,
+                0.024888407438993454,
+                0.02639777585864067
+            ],
+            "min" : [
+                -0.021552875638008118,
+                -0.012446120381355286,
+                -0.00880115944892168
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 12,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 12,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 12,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 144,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 144,
+            "byteOffset" : 144
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 96,
+            "byteOffset" : 288
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 24,
+            "byteOffset" : 384
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 408,
+            "uri" : "data:application/octet-stream;base64,F5OwPGnWS7y9MhC8MS7qNT73hbUmQNg8qI+wvNDqS7zJJhC8EO1itsbiyzzEJhC8qI+wvNDqS7zJJhC8MS7qNT73hbUmQNg8F5OwPGnWS7y9MhC8qI+wvNDqS7zJJhC8EO1itsbiyzzEJhC8EO1itsbiyzzEJhC8MS7qNT73hbUmQNg8F5OwPGnWS7y9MhC8uKgGOcVccb/1pao+uKgGOcVccb/1pao+uKgGOcVccb/1pao+9QdRvzVO8T4ZtKo+9QdRvzVO8T4ZtKo+9QdRvzVO8T4ZtKo+npWKuHKVIDgAAIC/npWKuHKVIDgAAIC/npWKuHKVIDgAAIC/4gNRP05m8T71pao+4gNRP05m8T71pao+4gNRP05m8T71pao+xj19PyHzaz8mUz4/FFH/PgEAAD+WSmw/wCqCPgEAAD8BAAA/lkpsPyZTPj8UUf8+gI4wPAiibD8BAAA/lkpsP8Aqgj4BAAA/wCqCPgEAAD8mUz4/FFH/PgzR/j6475o9AAABAAIAAwAEAAUABgAHAAgACQAKAAsA"
+        }
+    ]
+}
