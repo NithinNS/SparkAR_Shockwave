@@ -16,21 +16,14 @@
   <a href="https://blog.getbootstrap.com/"></a>
 </p> -->
 
-## 1. Overview
+## Overview
  
  
-[![](https://img.youtube.com/vi/zv7Uvo3tv7Y/0.jpg)](https://www.youtube.com/watch?v=YI7qU4-CAUk)
+[![](files/screenshots/Shockwave.gif)](https://www.youtube.com/watch?v=YI7qU4-CAUk)
 
+In this step-by-step tutorial, you will be creating a Spark AR effect which gamifies the whole beatboxing experience. Users score points & unlock new levels by beatboxing the right sounds. The effect enables beatboxers to showcase their skills like never before. You can see the effect in action using this link [Shockwave Demo Video](https://www.youtube.com/watch?v=vo5QYpSEzXg).
 
-The effect can recognize following sounds:
-
-| # | Name |Equivalent Beatbox Sound  | Denoted By | 3D Object| Color |
-| --- | --- | --- | --- | ---| --- |
-| 1 | Kick Drum |[Listen](files/sounds/k.mp3) | **k**  | Cube |  ![#ff55ff](https://placehold.it/15/ff55ff/000000?text=+) `#ff55ff`|
-| 2 | Snare |[Listen](files/sounds/s.mp3) | **s**  | Tetrahedron|  ![#aaff00](https://placehold.it/15/aaff00/000000?text=+)`#aaff00`|
-| 3 | Hi-Hat |[Listen](files/sounds/h.mp3) | **h**  | Cylinder | ![#55ffff](https://placehold.it/15/55ffff/000000?text=+) `#55ffff` |
-
-In this step-by-step tutorial, you will be creating the above effect and by the end of it, you will be familiar with using:
+By the end of the tutorial, you will be familiar with using:
 
 * **Audio Analyzer** patch and **Script** to split microphone audio into bands and differentiate sounds.
 
@@ -40,10 +33,60 @@ In this step-by-step tutorial, you will be creating the above effect and by the 
 
 * **JSON** data to indicate sounds and create new levels for the effect.
 
+* **Dynamic Instantiation** to recycle and reuse scene objects.
 
-## 2. Prerequisites
+* **SDF Textures** to mimic **Spot Lights**.
+
+The effect can recognize following sounds:
+
+| # | Name |Equivalent Beatbox Sound  | Denoted By | 3D Object| Prominent Band | Color |
+| --- | --- | --- | --- | ---| ---| --- |
+| 1 | Kick Drum |[Listen](files/sounds/k.mp3) | **k**  | Cube | band1 | ![#ff55ff](https://placehold.it/15/ff55ff/000000?text=+) `#ff55ff`|
+| 2 | Snare |[Listen](files/sounds/s.mp3) | **s**  | Tetrahedron| band4|  ![#aaff00](https://placehold.it/15/aaff00/000000?text=+)`#aaff00`|
+| 3 | Hi-Hat |[Listen](files/sounds/h.mp3) | **h**  | Cylinder | band7| ![#55ffff](https://placehold.it/15/55ffff/000000?text=+) `#55ffff` |
+| 4 | Water Drop (Beta)|[Listen](files/sounds/wd.mp3) | **wd**  | Droplet | band2 | ![#0055ff](https://placehold.it/15/0055ff/000000?text=+) `#0055ff` |
+
+## Table of contents
+1. [Prerequisites](#1-prerequisites)
+2. [Downloading the project](#2-downloading-the-project)
+3. [Understanding the Assets](#3-understanding-the-assets)
+    * [Patch Assets](#31-patch-assets)
+    * [Blocks](#32-blocks)
+    * [Textures](#33-textures)
+    * [Audio & Playback Controllers](#34-audio--playback-controllers)
+4. [Creating Layers & Scene Elements](#4-creating-layers--scene-elements)
+	* [Layers](#41-layers)
+	* [Score](#42-score)
+	* [Grid Plane](#43-grid-plane)
+	* [Circles](#44-circles)
+	* [Lights](#45-lights)
+	* [Confetti](#46-confetti)
+	* [Speakers ](#47-speakers)
+	* [Canvas](#48-canvas)
+	* [Ripple Planes](#49-ripple-planes)
+5. [Bridging Patch Editor & Script](#5-bridging-patch-editor--script)
+	* [Creating Variables](#51-creating-variables)
+	* [Analyzing Microphone Audio and Assigning Signals to Script Variables](#52-analyzing-microphone-audio-and-assigning-signals-to-script-variables)
+6. [Scripting](#6-scripting)
+	* [Importing Modules](#61-importing-modules)
+	* [Importing Objects](#62-importing-objects)
+	* [Native UI Picker & PersistenceModule](#63-native-ui-picker--persistencemodule)
+	* [Progress Bar & Confetti](#64-progress-bar--confetti)
+	* [Animation Driver](#65-animation-drivers)
+	* [Animating Blocks based on Level Data](#66-animating-blocks-based-on-level-data)
+	* [Monitor Signal Power, Differentiate Sounds and Identify Hits](#67-monitoring-signal-power-differentiate-sounds-and-identify-hits)
+7. [Patch Editor](#7-patch-editor)
+	* [Signal Senders](#71-signal-senders)
+	* [Level Music](#72-level-music)
+	* [Level Introduction](#73-level-introduction)
+	* [Triggered UI](#74-triggered-ui)
+8. [Next Steps](#8-next-steps)
+
+## 1. Prerequisites
 
 Following is an Advanced tutorial for Spark AR Creators who have some experience in building complex effects. Please familiarize yourself with the following concepts before proceeding.
+
+- [Blocks](https://sparkar.facebook.com/ar-studio/learn/patch-editor/blocks/introduction-to-blocks)
 
 - [Audio Playback Controller](https://sparkar.facebook.com/ar-studio/learn/tutorials/audio-basics)
 
@@ -57,6 +100,8 @@ Following is an Advanced tutorial for Spark AR Creators who have some experience
 
 - [Scripting](https://sparkar.facebook.com/ar-studio/learn/tutorials/scripting)
     - [Script to Patch Bridging](https://sparkar.facebook.com/ar-studio/learn/patch-editor/bridging)
+
+    - [Dynamic Instantiation](https://sparkar.facebook.com/ar-studio/learn/scripting/dynamic-instantiation)
     
     - [Native UI Picker](https://sparkar.facebook.com/ar-studio/learn/tutorials/native-ui-picker#scripting)
 
@@ -64,22 +109,22 @@ Following is an Advanced tutorial for Spark AR Creators who have some experience
 
     - [AnimationModule](https://sparkar.facebook.com/ar-studio/learn/reference/classes/animationmodule)
 
+    - [CameraInfoModule](https://sparkar.facebook.com/ar-studio/learn/reference/classes/camerainfomodule)
+
     - [PersistenceModule](https://sparkar.facebook.com/ar-studio/learn/reference/classes/persistencemodule)
 
     - [TimeModule](https://sparkar.facebook.com/ar-studio/learn/reference/classes/timemodule)
 
+## 2. Downloading the project
+
+To follow this tutorial, [download sample content](sample/sample_content.zip) and open the unfinished effect in [Spark AR Studio v102 and above.](https://sparkar.facebook.com/ar-studio/download/) All the required assets have already been imported to help you get started.
+
+## 3. Understanding the Assets
 
 
-## 3. Downloading the project
+### 3.1 Patch Assets
 
-To follow this tutorial, [download sample content](sample/sample_content.zip) and open the unfinished effect in [Spark AR Studio v97 and above.](https://sparkar.facebook.com/ar-studio/download/) All the required assets have already been imported to help you get started.
-
-## 4. Understanding the Assets
-
-
-### 4.1 Patch Assets
-
-All Patch Assets except **Circle** & **Custom Ripple Animation** are imported from Spark AR Library.
+All patch assets other than **Circle** & **Custom Ripple Animation**, have been imported from Spark AR Library.
 
 | # |  Name | Patch Image  | Sample Output |
 |--- | --- | --- | --- |
@@ -90,57 +135,80 @@ All Patch Assets except **Circle** & **Custom Ripple Animation** are imported fr
 | 5| **Grid**| <img src="files/screenshots/grid_patch.jpg" width="189" /> |  <img src="files/screenshots/grid_output.jpg"  />|
 | 6| **RGB Shift Shader**| <img src="files/screenshots/rgb_shift_shader_patch.jpg" width="189" />   |  <img src="files/screenshots/rgb_shift_shader_output.jpg"  /> |
  
-### 4.2 3D Shapes
 
-Following 3D Shapes are imported from the library.
+### 3.2 Blocks
 
-![](files/screenshots/3d_shapes.jpg)
+The effect uses the following 4 **Blocks** each representing a particular sound.
 
-### 4.3 Textures
+| # | Name | Sound | Image |
+| --- | --- |--- | --- |
+|1|**cubeBlock**|Kick Drum| ![](files/screenshots/cubeBlock.gif)  | 
+|2|**cylinderBlock**|Snare|  ![](files/screenshots/cylinederBlock.gif) | 
+|3|**tetrahedronBlock**|Hi-Hat|  ![](files/screenshots/tetrahedronBlock.gif) | 
+|4|**waterDropBlock**|Water Drop (Beta)|  ![](files/screenshots/waterdropBlock.gif) | 
+
+All block send & receive the following inputs & output respectively.
+
+#### Input
+
+* **z-position** (Number) : Blocks use this to animate 3D object along z-axis.
+* **hit** (Boolean) : Used to trigger hit animation, change materials & visibility of items.
+
+#### Output
+
+* **z-position** (Number) : To determine the current position of the 3D object in the z-axis at any given instance.
+
+### 3.3 Textures
 
 | Textures | Usage |
 | --- | --- |
 |  ![](files/screenshots/lock.png)  | **[lock](files/screenshots/lock.png)** is used in Native UI picker to denote levels which are yet to be unlocked by the user. ||
-|  ![](files/screenshots/levels.gif)  | **l1, l2, l3, l4, l5 & l6** are used in Native UI picker to denote levels already unlocked by the user. |
-|   | **cameraTexture**  is transformed by **Shaders** patches based on audio signals. |
+|  ![](files/screenshots/levels.gif)  | **l1** to **l7** are used as items in Native UI picker to denote levels unlocked by the user. |
+|   | **cameraTexture**  is transformed using **Shaders** patches based on audio signals. |
 |  ![](files/screenshots/dot.jpg)  | **[dot](files/screenshots/dot.jpg)** is used by **scoreBackgroundMaterial** to create circular background. |
-|  ![](files/screenshots/hit.jpg)  | **kickDrumHitTexture, snareHitTexture, hiHatHitTexture** is used by material to indicate that a **3D Object** was hit.|
+|  ![](files/screenshots/hit.jpg)  | **[hit](files/screenshots/hit.png)** is used by **Plane** objects to indicate that a **Block** was hit.|
 
-### 4.4 Audio & Playback Controllers
+### 3.4 Audio & Playback Controllers
 
-Audio files are categoried into:
-- **Instruction Audio**: Used to guide users.([level1Intro.m4a](files/sounds/level1Intro.m4a),[level2Intro.m4a](files/sounds/level2Intro.m4a),[level3Intro.m4a](files/sounds/level3Intro.m4a))
-- **Level Audio**: Background music played for each level.([arl_mus_FloatingParticles_lp_01.m4a](files/sounds/arl_mus_FloatingParticles_lp_01.m4a),[arl_mus_FloatingParticles_lp_02.m4a.m4a](files/sounds/arl_mus_FloatingParticles_lp_02.m4a.m4a),[level4Music.m4a](files/sounds/level4Music.m4a),[level5Music.m4.m4a](files/sounds/level5Music.m4a))
+Audio files are categorised into:
+- **Instruction Audio**: Used to guide users.([level1Intro.m4a](files/sounds/level1Intro.m4a),[level2Intro.m4a](files/sounds/level2Intro.m4a),[level3Intro.m4a](files/sounds/level3Intro.m4a),[level6Intro.m4a](files/sounds/level6Intro.m4a))
+- **Level Audio**: Background music played for each level.([level1Music.m4a](files/sounds/level1Music.m4a),[level2Music.m4a](files/sounds/level2Music),[level4Music.m4a](files/sounds/level4Music.m4a),[level5Music.m4a](files/sounds/level5Music.m4a),[level6Music.m4a](files/sounds/level6Music.m4a),[level7Music.m4a](files/sounds/level7Music.m4a)), 
 - **Level Unlock Audio**: Played when user unlocks a level. [levelUnlocked.m4a](files/sounds/levelUnlocked.m4a)
 
 
 **unlockAudioPlaybackController** is used to play [levelUnlocked.m4a](files/sounds/levelUnlocked.m4a) from script.
 
 
-## 5. Creating Layers & Scene Elements
+## 4. Creating Layers & Scene Elements
  
-### 5.1 Layers
+### 4.1 Layers
 
 A total of three layers are used to render objects in the scene.
 
 ![](files/screenshots/layers.jpg)
   
-Go to **Layers** panel, create three layers and rename them to **topLayer**, **middleLayer** & **bottomLayer**. Make sure the layers are arranged in the same order as shown in the image.
+Go to **Layers** panel, create three layers and rename them to **topLayer**, **middleLayer** & **bottomLayer**. Make sure layers are arranged in the same order as shown in the image.
 
-### 5.2 Score
+### 4.2 Score
+
 ![](files/screenshots/score.jpg)
-  
-1. In the **Scene** panel, create a new **Face Tracker** object. call it **faceTracker**.
 
-2. Right-click on the **faceTracker** object > **Add** > Choose **Plane** from the list and call it **scoreBackgroundPlane**.
+#### Front Camera
+
+1. In the **Scene** panel, create a new **Face Tracker** object, call it **faceTracker**.
+
+2. Right-click on the **faceTracker** object > **Add** > Choose **Null  Object** from the list and call it **scoreContainer**.
+
+3. Right-click on the **scoreContainer** object > **Add** > Choose **Plane** from the list and call it **scoreBackgroundPlane**.
 
 3. Update properties of **scoreBackgroundPlane** to:
 
     ![scoreBackgroundPlane_properties.jpg](files/screenshots/scoreBackgroundPlane_properties.jpg)
+    
 
-4. In the **Scene** panel, Right-click on the **scoreBackgroundPlane** object > **Add** > Choose **3D Text** from the list and call it **scoreText**.
+4. In the **Scene** panel, Right-click on the **scoreBackgroundPlane** object > **Add** > Choose **3D Text** from the list and call it **frontCameraScoreText**.
 
-5. Update properties of **scoreText** to:
+5. Update properties of **frontCameraScoreText** to:
 
     ![scoreText_properties.jpg](files/screenshots/scoreText_properties.jpg)
 
@@ -171,34 +239,148 @@ Make sure all the patches created in this section are placed inside the green **
 
 Now let's make the Score float on top of user's head.
  
-1. Select **scoreBackgroundPlane**, go to Inspector and click on **Actions**. 
+1. Select **scoreContainer**, go to Inspector and click on **Actions**. 
 
     ![score_action.jpg](files/screenshots/score_action.jpg)
 
-2. From the dropdown, select **Animate** > **Float**. This will open up the Patch Editor and automatically create patches required to make the **scoreBackgroundPlane** float. 
+2. From the dropdown, select **Animate** > **Float**. This will open up the Patch Editor and automatically create patches required to make the **scoreContainer** float. 
 
-4. Edit values of **Transition** Patch to reduce the range of motion of **scoreBackgroundPlane**. 
-     
+4. Edit values of **Transition** Patch to reduce the range of motion of **scoreContainer**. 
 
     ![scoreBackgroundPlane_transition](files/screenshots/scoreBackgroundPlane_transition.jpg)
+
+
+#### Back Camera
+1. In the **Scene** panel, create a new **Plane Tracker** object, call it **planeTracker**.
+
+2. As of now, the class name required to dynamically instantiate **3D Text** is not known so we will duplicate it. Right-click on the **scoreContainer** object & select **Duplicate** from the list. This will create **scoreContainer0**.
+
+3. Drag & Drop **scoreContainer0** into **planeTracker** and rename it to **scoreContainer**. Select **frontCameraScoreText** and rename it to **backCameraScoreText**.  
+
+    ![planeTracker_scoreContainer](files/screenshots/planeTracker_scoreContainer.jpg)
+
+4. Update **scoreContainer** properties to :
+
+    ![planeTracker_scoreContainer_properties.jpg](files/screenshots/planeTracker_scoreContainer_properties.jpg)
+
+
+5. Feel free to position **scoreBackgroundPlane** anywhere in the world space.
+
+### 4.3 Grid Plane
+
+![gridPlane](files/screenshots/gridPlane.jpg)
+
+ The flat horizontal surface on which objects slide is called Grid Plane.
+
+1. Under **Focal Distance**, create a new **Null Object** object and call it **frontCameraPlatform**.
+
+2. Update properties of **frontCameraPlatform** to:
+    
+    ![frontCameraPlatform_properties.jpg](files/screenshots/frontCameraPlatform_properties.jpg)
+
+3. Duplicate **frontCameraPlatform** object, Drag & Drop it into **planeTracker** and rename it to **backCameraPlatform**.
+
+Using Script we will, 
+1. Dynamically instantiate **gridPlane** object & import **gridMaterial**
+2. Update properties & material of **gridPlane**.
+3. Import **frontCameraPlatform** & **backCameraPlatform** as **Scene Objects**.
+4. Make **gridPlane** a child of **frontCameraPlatform** or **backCameraPlatform**.
+
+Add **Scripting Dynamic Instantiation** capability to your project & switch to code editor.
+
+```javascript
+const Scene = require('Scene'); // To import Scene Elements 
+const Materials = require('Materials'); // To import Materials  
+const CameraInfo = require('CameraInfo'); // To determine whether the user is using front/back camera
+
+(async function () {
  
-### 5.3 Grid Plane
+    //==============================================================================
+    // Dynamically Instantiating Objects + Importing corresponding Materials & Scene objects.
+    //==============================================================================
 
-![](files/screenshots/gridPlane.jpg)
+    const [gridPlane, cameraPlatformItems, gridMaterial, frontCameraPlatform, backCameraPlatform, frontCameraScoreText, backCameraScoreText] = await Promise.all([
+        
+        Scene.create("Plane", {
+            "name": "gridPlane",
+        }),
 
- The flat horizontal surface on which 3D objects slide is called Grid Plane.
+        //cameraPlatformItems will be used to group all the dynamically instantiated object.
+        Scene.create("SceneObject", {
+            "name": "cameraPlatformItems",
+        }),
 
-1. Create a new **Plane** object and call it **gridPlane**.
-2. Update properties of **gridPlane** to:
-    
-    ![gridPlane_properties.jpg](files/screenshots/gridPlane_properties.jpg)
-    
-    At this point, your project will look like this:
+        Materials.findFirst("gridMaterial"),
 
-    ![gridPlane_milestone_B.jpg](files/screenshots/gridPlane_milestone_B.jpg)
+        Scene.root.findFirst('frontCameraPlatform'),
+        Scene.root.findFirst('backCameraPlatform'),
+
+        Scene.root.findFirst('frontCameraScoreText'),
+        Scene.root.findFirst('backCameraScoreText'),
+
+    ]);
+
+    //To determine whether the user is using front/back camera at any given point.
+    var frontCamera = false;
+
+    //Stores the status of Dynamic Instantiation of objects.
+    var instantiated = false;
+
+    //scoreText will hold reference to frontCameraScoreText/backCameraScoreText
+    var scoreText = frontCameraScoreText;
+
+    //==============================================================================
+    // Monitor whether the user is using front/back camera
+    //==============================================================================
+
+    CameraInfo.captureDevicePosition.monitor({ fireOnInitialValue: true }).subscribe(function (event) {
+
+        //Set value of frontCamera
+        (event.newValue == "FRONT") ? frontCamera = true : frontCamera = false;
+
+        //Remove cameraPlatformItems from it's previous parent(frontCameraPlatform/backCameraPlatform)
+        instantiated?cameraPlatformItems.removeFromParent():"";
+
+        //Update reference stored in scoreText based on the value of frontCamera
+        frontCamera ? scoreText = frontCameraScoreText : scoreText = backCameraScoreText ;
+
+        //Add cameraPlatformItems as child of frontCameraPlatform / backCameraPlatform based on the value of frontCamera
+        frontCamera ? frontCameraPlatform.addChild(cameraPlatformItems) : backCameraPlatform.addChild(cameraPlatformItems)
+        
+        // (Optional) Update properties of gridPlane based on the value of frontCamera.
+        frontCamera ? gridPlane.transform.y = 0.1 : gridPlane.transform.y = 0.5;
+        frontCamera ? gridPlane.transform.scaleX = 12 : gridPlane.transform.scaleX = 6;
+        frontCamera ? gridPlane.transform.scaleY = 24 : gridPlane.transform.scaleY = 16;
+        
+        //Check if the objects were not instantiated before
+        if (!instantiated) {
+
+            //set instantiated to true so that we don't have to instantiate again.
+            instantiated = true;
+
+            //Set properties & material of gridPlane
+            gridPlane.transform.z = -0.22;
+            gridPlane.transform.scaleZ = 1;
+            gridPlane.material = gridMaterial;
+
+            //Add all the instantiated objects as a children of cameraPlatformItems
+            cameraPlatformItems.addChild(gridPlane);
+
+            
+        }
+
+    });
+
+})();
+
+```
+
+ At this point, your project will look like this:
+
+![gridPlane_milestone_B.jpg](files/screenshots/gridPlane_milestone_B.jpg)
 
 
-Now, Let's generate grid pattern, animate and assign it as texture to **gridMaterial**.
+Let's generate grid pattern, animate and assign it as texture to **gridMaterial**.
  
 1. Locate the **Grid** patch  in the **Assets** panel. Drag and Drop it inside the Patch Editor.
 
@@ -237,87 +419,128 @@ Now, Let's generate grid pattern, animate and assign it as texture to **gridMate
 
 13. Use a **Delay** patch to enable Grid Animation after a delay **0.8** seconds from the time user starts recording video.
  
-Now, Let's orient **gridPlane** according to user's head rotation in the **Z** axis
-
-1. Select **faceTracker** object, drag and drop it inside the Patch Editor.
-
-    ![](files/screenshots/grid_plane_rotation.jpg)
- 
-3. We want **gridPlane** to react only to the head movement made by the user in the **Z** axis. So we will **Unpack** the **3D Rotation** output 
-from the **faceTracker** patch and perform some calculations on it before connecting it to **gridPlane**.
-
-4. Connect the **Z** output of **Unpack** patch to a **Divide** patch. Change **denominator** value of **Divide** patch to **8**. This will make **gridPlane** less sensitive to head rotation.
-
-5. Create a **Pack** patch of type **Vector3** and Set value of the first vector to **-90**
-
-6. Connect 
-    * Output port of **Divide** patch to third input port of  **Pack** patch.
-    
-    * Output port of **Pack** patch to **3D Rotation** input port of **gridPlane**. At this point, your project will look like this:
-
-    ![gridPlane_milestone_A.jpg](files/screenshots/gridPlane_milestone_A.jpg)
 
  
-### 5.4  Platform
+### 4.4  Circles
 
-![platform_layers.jpg](files/screenshots/platform_layers.jpg)
+**Circles** indicate special locations on the **gridPlane**. When a 3D object  passes over any of these locations, user has to perform the corressponding beatboxing sound to hit the object and score a point.
 
-Platform contains 4 **Plane** objects called **spotLightPlane**, **kickDrumHitCircle**, **hiHatHitCircle** & **snareHitCircle** nested inside a **Null Object** called **platform**. 
+![circles_layers.jpg](files/screenshots/circles_layers.jpg)
 
-1. In the **Scene** panel, create a new **Null Object** object and call it **platform**.
+We will follow the same procedure discussed in the previous step to instantiate  **kickDrumHitCircle**, **hiHatHitCircle** & **snareHitCircle** and add them as children of **frontCameraPlatform**/ **backCameraPlatform**.
 
-2. Right-click on **platform** object > **Add** > Choose **Plane** from the list and call it **spotLightPlane**. This is the transparent flat surface on which we will shine **Spot Lights** later.
+```javascript
+/* ... Truncated Imported Modules */
 
-3. Update properties of **spotLightPlane** to:
-
-    ![spotLightPlane_properties.jpg](files/screenshots/spotLightPlane_properties.jpg)
+(async function () {
  
-  ![platform_viewport_milestone_A.jpg](files/screenshots/platform_viewport_milestone_A.jpg)
+    //=========================================================================================
+    // Dynamically Instantiating Objects + Importing corresponding Materials & Scene objects.
+    //=========================================================================================
 
-4. Right-click on the **platform** object > **Add** > Choose **Plane** from the list and call it **kickDrumHitCircle**.
+    const [gridPlane, kickDrumHitCircle, hiHatHitCircle, snareHitCircle, cameraPlatformItems, gridMaterial, circleMaterial, frontCameraPlatform, backCameraPlatform, frontCameraScoreText, backCameraScoreText] = await Promise.all([
+        
+        /* ... Truncated Code */
 
-5. Repeat **Step 4** twice and create **hiHatHitCircle** & **snareHitCircle**.
+         Scene.create("Plane", {
+            "name": "kickDrumHitCircle",
+        }),
 
-6. With **kickDrumHitCircle**, **hiHatHitCircle** & **snareHitCircle** selected, In the Inspector, Set:
+        Scene.create("Plane", {
+            "name": "hiHatHitCircle",
+        }),
 
-    ![kickDrumHitCircle_properties.png](files/screenshots/kickDrumHitCircle_properties.png)
+        Scene.create("Plane", {
+            "name": "snareHitCircle",
+        }),
 
-7. With the **hiHatHitCircle** selected, set the **Position** value of **X** to **-0.1** in the inspector.
+        /* ... Truncated Code */
 
-8. With the **snareHitCircle** selected, set the **Position** value of **X** to **0.1**.
+        Materials.findFirst("circleMaterial"),
 
-9. Select the **platform** object and change its **Layer** to **topLayer**.
+        /* ... Truncated Code */
 
-Generate circle texture and assign it to **circleMaterial**.
+    ]);
+
+    /* ... Truncated Code */
+
+    //==============================================================================
+    // Monitor whether the user is using front/back camera
+    //==============================================================================
+
+    CameraInfo.captureDevicePosition.monitor({ fireOnInitialValue: true }).subscribe(function (event) {
+
+        /* ... Truncated Code */
+        
+        //Check if the objects were not instantiated before
+        if (!instantiated) {
+
+            /* ... Truncated Code */
+
+            //Set properties & material of kickDrumHitCircle, hiHatHitCircle, snareHitCircle
+            kickDrumHitCircle.transform.y = -0.2;
+            kickDrumHitCircle.transform.z = -0.21;
+            kickDrumHitCircle.transform.scaleX = 1.8;
+            kickDrumHitCircle.transform.scaleY = 1.8;
+            kickDrumHitCircle.transform.scaleZ = 1.8;
+            kickDrumHitCircle.material = circleMaterial;
+
+            hiHatHitCircle.transform.x = -0.1;
+            hiHatHitCircle.transform.y = -0.2;
+            hiHatHitCircle.transform.z = -0.21;
+            hiHatHitCircle.transform.scaleX = 1.8;
+            hiHatHitCircle.transform.scaleY = 1.8;
+            hiHatHitCircle.transform.scaleZ = 1.8;
+            hiHatHitCircle.material = circleMaterial;
+
+            snareHitCircle.transform.x = 0.1;
+            snareHitCircle.transform.y = -0.2;
+            snareHitCircle.transform.z = -0.21;
+            snareHitCircle.transform.scaleX = 1.8;
+            snareHitCircle.transform.scaleY = 1.8;
+            snareHitCircle.transform.scaleZ = 1.8;
+            snareHitCircle.material = circleMaterial;
+
+            //Add all the instantiated objects as a children of cameraPlatformItems
+             
+             /* ... Truncated Code */
+
+            cameraPlatformItems.addChild(kickDrumHitCircle);
+            cameraPlatformItems.addChild(hiHatHitCircle);
+            cameraPlatformItems.addChild(snareHitCircle);
+
+        }
+
+    });
+
+})();
+
+```
+ At this point, your project will look like this:
+
+![circles_milestone_A](files/screenshots/circles_milestone_A.jpg)
+
+Next, generate circle texture and assign it to **circleMaterial**.
  
 1. Locate **Circle** patch  in the **Assets** panel. Drag and Drop it inside the Patch Editor.
 
-    ![](files/screenshots/platform_patch.jpg)
+    ![circle_rotation_patch](files/screenshots/circle_rotation_patch.jpg)
 
-3. Connect output of **Circle** patch to the **Diffuse Texture** port of **Circle** patch. Circle pattern will now be visible in the simulator.
+3. Connect output of **Circle** patch to the **Diffuse Texture** port of **circleMaterial** patch. Circle pattern will now be visible in the simulator.
 
-Animate circles to rotate in **Y** axis as soon as the user starts recording video. For this, use **videoRecording** Receiver patch from the previous section.
-
-1. Create a **Loop Animation** patch and a **Transition** patch. 
-
-    ![](files/screenshots/platform_patch_rotation_animation.jpg)
-
-2. Edit values of **Transition** patch,  
+3. Animate circles to rotate in **Y** axis as soon as the user starts recording video. For this, use **videoRecording** Receiver patch from the previous section. Connect the output of **videoRecording** Receiver patch to the **rotation** input port of **Circle** patch.
     
-    ![circle_transition.jpg](files/screenshots/circle_transition.jpg)
- 
-4. Connect 
-    * The output of the **videoRecording** Receiver patch to the **Enable** input port of **Loop Animation** patch.
-    * The **Progress** output of **Loop Animation** patch to the **Progress** input of **Transition** patch.
-    * The output of **Transition** patch to the **3D Rotation** input port of **kickDrumHitCircle**, **hiHatHitCircle** & **snareHitCircle**. At this point, your project will look like this:
 
-    ![](files/screenshots/platform_milestone_B.jpg)    
-
-### 5.5 Lights 
+### 4.5 Lights
 
 ![lights_layers.jpg](files/screenshots/lights_layers.jpg)
 
-The effect has a **Point Light**, a **Directional Light** and **3 Spot Lights**.
+The effect uses,
+1. **Point Light** 
+2. **Directional Light** 
+3. **SDF Textures** to mimic **3 Spot Lights**.
+
+Let's begin by adding **Point Light** & **Directional Light** to the scene.
 
 1. In the **Scene** panel, create a new **Point Light** object and call it **pointLight**.
 
@@ -331,97 +554,136 @@ The effect has a **Point Light**, a **Directional Light** and **3 Spot Lights**.
 
     ![directionalLight_properties.jpg](files/screenshots/directionalLight_properties.jpg)  
 
-5. We want the **platform** objects to be illuminated only by  **Spot Lights**. Since all objects of **platform** are in the **topLayer**, we will **Exclude** it from receiving **Point Light** & **Directional Light**.  
-With both **pointLight** & **directionalLight** selected, In the Inspector,Under **Exclude**, Select **topLayer** from the dropdown.
+5. Select  **pointLight**, **directionalLight** and change its **Layer** to **middleLayer** in the Inspector    
 
-6. Create **3** **Spot Light** object and rename them to **kickDrumSpotLight**, **hihatSpotLight**, **snareSpotLight**. 
+We want the **circles** present on the **gridPlane** to glow. To acheive this, we will use **Plane** objects with **SDF Textures** applied to them.
 
-8. Update properties of **kickDrumSpotLight** to:
-    
-    ![kickDrumSpotLight_properties.jpg](files/screenshots/kickDrumSpotLight_properties.jpg)
+We will instantiate three **Plane** objects called **kickDrumHitCircleGlow**, **hiHatHitCircleGlowMaterial** & **snareHitCircleGlowMaterial** and add them as children of **frontCameraPlatform**/ **backCameraPlatform**.
 
-9. Update properties of **hihatSpotLight** to:
-    
-    ![hiHatSpotLight_properties.jpg](files/screenshots/hiHatSpotLight_properties.jpg)
+```javascript
+/* ... Truncated Imported Modules */
 
-10. Update properties of **snareSpotLight** to:
-    
-    ![snareSpotLight_properties.jpg](files/screenshots/snareSpotLight_properties.jpg)
+(async function () {
+ 
+    //=========================================================================================
+    // Dynamically Instantiating Objects + Importing corresponding Materials & Scene objects.
+    //=========================================================================================
 
-11. Select  **pointLight**, **directionalLight**, **kickDrumSpotLight**, **hihatSpotLight** & **snareSpotLight** object and change its **Layer** to **middleLayer** in the Inspector. At this point, your project will look like this:
+    const [gridPlane, kickDrumHitCircle, hiHatHitCircle, snareHitCircle, kickDrumHitCircleGlow, hiHatHitCircleGlow, snareHitCircleGlow, cameraPlatformItems, gridMaterial, circleMaterial, hiHatHitCircleGlowMaterial, snareHitCircleGlowMaterial, kickDrumCircleGlowMaterial, frontCameraPlatform, backCameraPlatform, frontCameraScoreText, backCameraScoreText ] = await Promise.all([
+        
+        /* ... Truncated Code */
 
-    ![](files/screenshots/lights_milestone_A.jpg)    
+        Scene.create("Plane", {
+            "name": "kickDrumHitCircleGlow",
+        }),
 
-Now let's make **Spot Lights** float in such a way that the diameter of the light beam illuminating the **platform** changes sinusoidally.
+        Scene.create("Plane", {
+            "name": "hiHatHitCircleGlow",
+        }),
 
-1.  Select  **kickDrumSpotLight**, **hihatSpotLight** & **snareSpotLight** in the **Scene** panel, and click the arrow next to **Position** in the Inspector. This will create three yellow patch representing **Position** property of each object.
+        Scene.create("Plane", {
+            "name": "snareHitCircleGlow",
 
-    ![spotLight_patch_position.jpg](files/screenshots/spotLight_patch_position.jpg)    
+        }),
 
-2. Create a **Loop Animation** patch and a **Transition** patch to animate **Spot Lights** to float. 
+        /* ... Truncated Code */
 
-3. Edit values of **Transition** patch
+        Materials.findFirst("hiHatHitCircleGlowMaterial"),
+        Materials.findFirst("snareHitCircleGlowMaterial"),
+        Materials.findFirst("kickDrumCircleGlowMaterial"),
+
+        /* ... Truncated Code */
+
+    ]);
+
+    /* ... Truncated Code */
+
+    //==============================================================================
+    // Monitor whether the user is using front/back camera
+    //==============================================================================
+
+    CameraInfo.captureDevicePosition.monitor({ fireOnInitialValue: true }).subscribe(function (event) {
+
+        /* ... Truncated Code */
+        
+        //Check if the objects were not instantiated before
+        if (!instantiated) {
+
+            /* ... Truncated Code */
+
+            //Set properties & material of kickDrumHitCircleGlow, hiHatHitCircleGlow, snareHitCircleGlow
+            kickDrumHitCircleGlow.transform.x = 0;
+            kickDrumHitCircleGlow.transform.y = -0.2;
+            kickDrumHitCircleGlow.transform.z = -0.21;
+            kickDrumHitCircleGlow.transform.scaleX = 2;
+            kickDrumHitCircleGlow.transform.scaleY = 2;
+            kickDrumHitCircleGlow.transform.scaleZ = 2;
+            kickDrumHitCircleGlow.material = kickDrumCircleGlowMaterial;
+
+            hiHatHitCircleGlow.transform.x = -0.09;
+            hiHatHitCircleGlow.transform.y = -0.2;
+            hiHatHitCircleGlow.transform.z = -0.21;
+            hiHatHitCircleGlow.transform.scaleX = 2;
+            hiHatHitCircleGlow.transform.scaleY = 2;
+            hiHatHitCircleGlow.transform.scaleZ = 2;
+            hiHatHitCircleGlow.material = hiHatHitCircleGlowMaterial;
+
+            snareHitCircleGlow.transform.x = 0.09;
+            snareHitCircleGlow.transform.y = -0.2;
+            snareHitCircleGlow.transform.z = -0.21;
+            snareHitCircleGlow.transform.scaleX = 2;
+            snareHitCircleGlow.transform.scaleY = 2;
+            snareHitCircleGlow.transform.scaleZ = 2;
+            snareHitCircleGlow.material = snareHitCircleGlowMaterial;
+
+            //Add all the instantiated objects as a children of cameraPlatformItems
+             
+             /* ... Truncated Code */
+
+            cameraPlatformItems.addChild(kickDrumHitCircleGlow);
+            cameraPlatformItems.addChild(hiHatHitCircleGlow);
+            cameraPlatformItems.addChild(snareHitCircleGlow);
+            
+        }
+
+    });
+
+})();
+
+```
+At this point, your project will look like this:
+
+![](files/screenshots/lights_milestone_A.jpg)    
+
+Next, let's generate **SDF Textures**.
+
+1. Create a **SDF Circle** patch & **Smooth Step** patch.
+
+2. Update properties of **Smooth Step** patch. Set,
+    * **Edge Min** to **0.4**
+    * **Edge Max** to **0**
+
+    ![sdf_spotlight.jpg](files/screenshots/sdf_spotlight.jpg) 
+
+3. Connect,
+    * Output of **SDF Circle** patch to first port of **Smooth Step** patch.
+    * Output of **Smooth Step** patch to Diffuse Texture of **kickDrumCircleGlowMaterial**, **hiHatHitCircleGlowMaterial**, **snareHitCircleGlowMaterial**.
+
+4. Create a **Loop Animation** patch and a **Transition** patch to animate **Radius** of **SDF Circle**
+
+5. Edit values of **Transition** patch
   
     ![spotLight_transition.jpg](files/screenshots/spotLight_transition.jpg)
 
-4. Create 3 **Pack** patches of type **Vector3** (one for each **Spot Light**).
-  
-6. Edit the values of **Pack** patches. 
-    
-    ![transition_pack.jpg](files/screenshots/transition_pack.jpg)
-
-8. Connect 
+6. Connect 
     * **Progress** output of **Loop Animation** patch to  **Progress** input of **Transition** patch.
-    * Output port of **Transition** patch to **Y** input ports of all 3 **Pack** patches.
-    * Output port of **Pack** patch to **3D Position** input port of **kickDrumSpotLight**, **hihatSpotLight** & **snareSpotLight**. At this point, your project will look like this:
+    * Output port of **Transition** patch to **Radius** port of **SDF Circle** patch.
 
-    ![floating_spotlight.gif](files/screenshots/floating_spotlight.gif)    
+At this point, your project will look like this:
 
-### 5.6 3D Models 
+![floating_spotlight.gif](files/screenshots/floating_spotlight.gif)    
 
-![3d_models_layers.jpg](files/screenshots/3d_models_layers.jpg)
-
-1. In the **Scene** panel, create a new **Null Object** object and call it **3dModels**.
-
-2. Locate **Cube**, **Tetrahedron** & **Cylinder** 3D model present in **Assets** panel. Drag and Drop them into the **Scene** panel and place them inside **3dModels** object. 
-
-3. Now, exapand the **Cube** object and locate **Cube** Mesh. Click and drag the **Cube** Mesh and make it a direct child of **3dModels**. This makes it easier to change the **Material** of the **Cube** Mesh from the Script. You can retain **Cube** Mesh and delete the **Cube** object. Rename **Cube** Mesh to **Cube1**. 
-
-    ![mesh.gif](files/screenshots/mesh.gif)
-4. Repeat the previous step for **Tetrahedron Mesh** and **Cylinder Mesh**.
-4. Update properties of **cube1** to:
-
-    ![.jpg](files/screenshots/cube1_properties.jpg) 
-
-5. Update properties of **snare1** to:
-   
-   ![.jpg](files/screenshots/tetrahedron1_properties.jpg)
-
-5. Update properties of **cylinder1** to:
-    
-    ![.jpg](files/screenshots/cylinder1_properties.jpg)
-
-<!-- Names may have to be changed -->
-8.  Select  **cube1**, **tetrahedron1** & **cylinder1** in the **Scene** panel, and press **Ctrl** + **D** four times to duplicate them.
-
-   :warning: Do not use **Copy** +  **Paste** in this step. It will create a new material for every new object. On the other hand **Ctrl** + **D** creates a copy of the object but assignes the material of the original object to the duplicate object.
-
-9. Select **3dModels** object and change its **Layer** to **middleLayer** in the Inspector. At this point, your project will look like this:
-
-    ![3d_objects_milestone_A.jpg](files/screenshots/3d_objects_milestone_A.jpg)
-
-Use output of **4 Colors Gradient** patch as texture of **kickDrumMaterial**, **snareMaterial** and **hiHatMaterial**.
-
-1. Locate **4 Colors Gradient** patch in **Assets** panel. Drag and Drop it inside the Patch Editor.
-
-
-2. Set **Rotation** value of **4 Colors Gradient** patch to **45**.
-
-3. Connect the output of **4 Colors Gradient** patch to the **Diffuse Texture** port of **kickDrumMaterial**, **snareMaterial** and **hiHatMaterial**.
-
-    ![3d_objects_milestone_B.jpg](files/screenshots/3d_objects_milestone_B.jpg)
-
-### 5.7 Confetti
+### 4.6 Confetti
 
 ![](files/screenshots/confetti.jpg)
 
@@ -437,7 +699,7 @@ The effect uses two **Particle Systems** to create Confetti. They are triggered 
 
 3. Once you are satisfied with the configuration of **Particle Systems**, set **Birthrate** to **0** so that it can be triggered from script as soon as user unlocks a level.
 
-### 5.8 Speakers 
+### 4.7 Speakers 
 
 The effect uses 4 **Speaker** objects.
 
@@ -459,7 +721,7 @@ The effect uses 4 **Speaker** objects.
 
 5. **Audio** source for the remaining **speakers** will be provided using patches in the next section.
  
-### 5.9 Canvas
+### 4.8 Canvas
 ![canvas_layers.jpg](files/screenshots/canvas_layers.jpg)
  
 1. In the **Scene** panel, create a new **Canvas** object & call it **canvas**.
@@ -484,7 +746,7 @@ The effect uses 4 **Speaker** objects.
 
 At this point, you may not notice any difference in the effect with or without the **userRectangle**. This is because, **cameraTexture** has been assigned as **Texture** of **userMaterial**. Using patches, we will be performing color manipulations to **cameraTexture** in the next section.
 
-### 5.10 Ripple Planes
+### 4.9 Ripple Planes
 
 ![ripple_plane_layers.jpg](files/screenshots/ripple_plane_layers.jpg)
 
@@ -492,11 +754,11 @@ Ripple Planes consists of three **Plane** objects called **kickDrumRipplePlane**
 
 1. In the **Scene** panel, create a new **Null Object** object & call it **ripplePlanes**.
 
-2. Right-click on **ripplePlanes** object > **Add** > Choose **Plane** from the list. Repeat this step twice. 
+2. Right-click on **ripplePlanes** object > **Add** > Choose **Plane** from the list. Repeat this step thrice. 
 
-3. Rename **Rectangle** objects to **kickDrumRipplePlane**, **snareRipplePlane** & **hiHatRipplePlane**.
+3. Rename **Rectangle** objects to **kickDrumRipplePlane**, **snareRipplePlane**, **hiHatRipplePlane** & **waterDropRippleMaterial** .
 
-4. Update properties of **kickDrumRipplePlane**, **snareRipplePlane** & **hiHatRipplePlane** to:
+4. Update properties of **kickDrumRipplePlane**, **snareRipplePlane**, **hiHatRipplePlane** & **waterDropRippleMaterial** to:
 
     ![kickDrumRipplePlane_properties](files/screenshots/kickDrumRipplePlane_properties.jpg)
     ![snareRipplePlane_properties](files/screenshots/snareRipplePlane_properties.jpg)
@@ -506,9 +768,9 @@ Ripple Planes consists of three **Plane** objects called **kickDrumRipplePlane**
 
     ![ripple_planes_milestone_A.jpg](files/screenshots/ripple_planes_milestone_A.jpg)
   
-## 6. Bridging Patch Editor & Script 
+## 5. Bridging Patch Editor & Script 
 
-### 6.1 Creating Variables
+### 5.1 Creating Variables
 
 **Variables to Script :**
 
@@ -516,7 +778,7 @@ We will be passing two types of variables from Patch Editor to Script.
 
 * **recording** is a **Boolean** variable that indicates whether the user has started recording video or not.
 
-* **band1**, **band4**, **band7**  are a **Number** variables used to determine the Signal Power of **Kick Drum**, **Snare** & **Hi-Hat** present in **Microphone Audio**. Signals will be assigned to these variables in the next section.
+* **band1**, **band2**, **band4**, **band7**  are a **Number** variables used to determine the Signal Power of **Kick Drum**, **Snare** & **Hi-Hat** present in **Microphone Audio**. Signals will be assigned to these variables in the next section.
 
 Select **Script** file in the **Assets Panel** and create the following variables in the **Inspector Panel**.
 
@@ -539,7 +801,7 @@ Select **Script** file in the **Assets Panel** and create the following variable
 
 ![from_script_variables.jpg](files/screenshots/from_script_variables.jpg)
 
-### 6.2 Analyzing Microphone Audio and Assigning Signals to Script Variables
+### 5.2 Analyzing Microphone Audio and Assigning Signals to Script Variables
 ![microphone_audio.jpg](files/screenshots/microphone_audio.jpg)
 
 1. From the **Scene** Panel, drag and drop the **Microphone** object into the Patch Editor and place it inside the red **Microphone Audio** Comment Patch.
@@ -548,7 +810,7 @@ Select **Script** file in the **Assets Panel** and create the following variable
 
     ![microphone_audio_analyzer.jpg](files/screenshots/microphone_audio_analyzer.jpg)
 
-3. Next, connect output of **Denoiser** to a **Audio Analyzer** patch. Obtain Signal Power of **Band 1**, **Band 2** & **Band 3** and pass them as **Variables To  Script**.
+3. Next, connect output of **Denoiser** to a **Audio Analyzer** patch. Obtain Signal Power of **Band 1**, **Band 2**, **Band 4** & **Band 7** and pass them as **Variables To  Script**.
 
 4. Connect **Audio** output from **Audio Analyzer** patch to **Audio** input of **Parametric Equailizer** patch. 
 
@@ -560,14 +822,15 @@ Select **Script** file in the **Assets Panel** and create the following variable
 
 7. Connect output of **Parametric Equailizer** to **Audio** input of **userSpeaker** patch.
 
-## 7. Scripting
+## 6. Scripting
 
 Add the following capabilities to your project.
 * **Native UI Picker** under **Native UI Control**.
 
 * **Persistence** (Add **data** to **Whitelisted keys**).
  
-### 7.1 Importing Modules
+ 
+### 6.1 Importing Modules
  
 ```javascript
 // Import all the required modules.
@@ -575,13 +838,24 @@ Add the following capabilities to your project.
 const Time = require('Time'); // To keep track of Time and trigger animations accordingly
 const Audio = require('Audio'); // To play Level Unlock Audio
 const Scene = require('Scene'); // To import Scene Elements 
+const Blocks = require('Blocks'); // To instantiate blocks
 const Patches = require('Patches'); // To exchange data between to Patch Editor and Script
 const NativeUI = require('NativeUI'); // To create Native UI Picker
 const Textures = require('Textures'); //  To import textures required by Native UI Picker 
 const Animation = require('Animation'); // To Animate cubes, cylinders & tetrahedrons
-const Materials = require('Materials'); // To import hit Materials 
+const Materials = require('Materials'); // To import Materials 
 const Persistence = require('Persistence'); // To store max level unlocked by the user
-export const Diagnostics = require('Diagnostics'); // To debug code
+const Diagnostics = require('Diagnostics'); // To debug code
+const CameraInfo = require('CameraInfo'); // To determine whether the user is using front/back camera
+
+(async function () {
+
+/* ... Truncated Dynamically Instantiating Objects + Importing corresponding Materials & Scene objects. */
+
+/* ... Truncated CameraInfo Monitoring Code */
+
+})();
+
 ```
 **Level JSON**
 
@@ -589,7 +863,7 @@ export const Diagnostics = require('Diagnostics'); // To debug code
 * **level_X** indicates the level number or (index+1) of item selected in Native UI picker. Ex:```"level_1"```
     * **duration** of the entire level indicated in milli seconds. Ex:```"duration": 38000```
     * **minscoreText** indicates the min score user requires to unlock next level. Ex:```"minscoreText": 25```
-    * **Time** & **Sound Letter** indicates the instance in time at which the animation of **3D Object** corresponding to the specified **Sound Letter** should start. Ex:```"1.0": ["k"]```
+    * **Time** & **Sound Letter** indicates the instance in time at which the animation of a **Block** corresponding to the specified **Sound Letter** should start. Ex:```"1.0": ["k"]```
 
 ```javascript
 {
@@ -621,7 +895,21 @@ JSON data can be stored in the same **script.js** file or externally in  differe
 
 To add a new level, modify **Level JSON** and configuration of **Native UI Picker**. 
 
-### 7.2 Importing Objects
+
+Before proceeding to the next step, let's create containers to hold the Models(Blocks).
+
+1. In the **Scene** panel, create a new **Null Object** object & call it **frontCameraModelContainer**.
+
+    ![model_container.jpg](files/screenshots/model_container.jpg)
+
+2. Repeat the previous step and create a **Null Object** object under **Plane Tracker** and call it **backCameraModelContainer**
+
+3. Select both **frontCameraModelContainer** & **backCameraModelContainer** and change their **Layer** to **middleLayer** in the Inspector.
+
+
+
+
+### 6.2 Importing Objects
 
 Use **Promise** inside the **Asynchronous** function to import all the required **Scene objects**, **Textures**, **AudioPlaybackController**, **Materials** and **Variables** passed from Patch Editor. Assign them to array of variables.
 
@@ -630,55 +918,39 @@ Use **Promise** inside the **Asynchronous** function to import all the required 
 
 (async function () {
 
-    const [cube1, cube2, cube3, cube4, cube5, cylinder1, cylinder2, cylinder3, cylinder4, cylinder5, tetrahedron1, tetrahedron2, tetrahedron3, tetrahedron4, tetrahedron5, band1, band4, band7, scoreText, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, lockTexture, recording, scoreContainer, progressBarRectangle, confettiYellow, confettiGreen, unlockAudioPlaybackController, kickDrumMaterial,snareMaterial,hiHatMaterial, kickDrumHitMaterial,snareHitMaterial,hiHatHitMaterial] = await 
+    /* ... Truncated Dynamically Instantiating Objects + Importing corresponding Materials & Scene objects. */
 
-    Promise.all([
-        Scene.root.findFirst('cube1'),
-        Scene.root.findFirst('cube2'),
-        Scene.root.findFirst('cube3'),
-        Scene.root.findFirst('cube4'),
-        Scene.root.findFirst('cube5'),
-        Scene.root.findFirst('cylinder1'),
-        Scene.root.findFirst('cylinder2'),
-        Scene.root.findFirst('cylinder3'),
-        Scene.root.findFirst('cylinder4'),
-        Scene.root.findFirst('cylinder5'),
-        Scene.root.findFirst('tetrahedron1'),
-        Scene.root.findFirst('tetrahedron2'),
-        Scene.root.findFirst('tetrahedron3'),
-        Scene.root.findFirst('tetrahedron4'),
-        Scene.root.findFirst('tetrahedron5'),
+    //===============================================================================================================================
+    // Import all the required Scene objects, Textures, AudioPlaybackController and Variables passed from Patch Editor
+    //===============================================================================================================================
+   
+    const [band1, band2, band4, band7, frontCameraModelContainer, backCameraModelContainer, l1, l2, l3, l4, l5, l6, l7, lockTexture, recording, progressBarRectangle, confettiYellow, confettiGreen, unlockAudioPlaybackController] = await Promise.all([
         Patches.outputs.getScalar("band1"),
+        Patches.outputs.getScalar("band2"),
         Patches.outputs.getScalar("band4"),
         Patches.outputs.getScalar("band7"),
-        Scene.root.findFirst('scoreText'),
+        Scene.root.findFirst('frontCameraModelContainer'),
+        Scene.root.findFirst('backCameraModelContainer'),
         Textures.findFirst('l1'),
         Textures.findFirst('l2'),
         Textures.findFirst('l3'),
         Textures.findFirst('l4'),
         Textures.findFirst('l5'),
         Textures.findFirst('l6'),
-        Textures.findFirst('l7'),
-        Textures.findFirst('l8'),
-        Textures.findFirst('l9'),
-        Textures.findFirst('l10'),
+        Textures.findFirst('l7'),       
         Textures.findFirst('lockTexture'),
         Patches.outputs.getBoolean("recording"),
-        Scene.root.findFirst('scoreContainer'),
         Scene.root.findFirst('progressBarRectangle'),
         Scene.root.findFirst('confettiYellow'),
         Scene.root.findFirst('confettiGreen'),
         Audio.getAudioPlaybackController('unlockAudioPlaybackController'),
-        Materials.findFirst("kickDrumMaterial"),
-        Materials.findFirst("snareMaterial"),
-        Materials.findFirst("hiHatMaterial"),
-        Materials.findFirst("kickDrumHitMaterial"),
-        Materials.findFirst("snareHitMaterial"),
-        Materials.findFirst("hiHatHitMaterial"),        
     ]);
+
+    /* ... Truncated CameraInfo Monitoring Code */
+
 })();    
 ```
-### 7.3 Native UI Picker & PersistenceModule
+### 6.3 Native UI Picker & PersistenceModule
 
 In this section, you will:
 * Set up the configuration for **Native UI Picker**.
@@ -692,7 +964,7 @@ In this section, you will:
 
 (async function () {
 
-    /* ... Truncated Promise */
+    /* ... Truncated Promises */
 
     //==============================================================================
     // Native UI Picker variables
@@ -714,14 +986,11 @@ In this section, you will:
             { image_texture: lockTexture },
             { image_texture: lockTexture },
             { image_texture: lockTexture },
-            { image_texture: lockTexture },
-            { image_texture: lockTexture },
-            { image_texture: lockTexture }
         ]
     };
 
     // Icons of all levels assigned to an array 
-    let levelIcons = [l1, l2, l3, l4, l5, l6, l7, l8, l9, l10]; 
+    let levelIcons = [l1, l2, l3, l4, l5, l6, l7];
     
     // Negated whenever user selects a new item from Native UI picker
     var playIntroChange = false;
@@ -786,10 +1055,17 @@ In this section, you will:
     //Changes to index of newly selected item is sent to the Patch Editor
     Patches.inputs.setScalar("currentLevel", picker.selectedIndex);
 
+    /* ... Truncated CameraInfo Monitoring Code */
+
 })();    
 ```
 
-### 7.4 Progress Bar & Confetti
+At this point, your project will look like this: 
+
+ ![native_ui_picker_milestone_A](files/screenshots/native_ui_picker_milestone_A.jpg)
+
+
+### 6.4 Progress Bar & Confetti
 
 In this section, you will:
 * Set up **Animation Driver** variables of **Progress Bar**.
@@ -807,7 +1083,7 @@ In this section, you will:
 
 (async function () {
 
-    /* ... Truncated Promise & Variable Declaration Code */
+    /* ... Truncated Promises & Variable Declaration Code */
 
     //==============================================================================
     // ProgressBar & Score variables
@@ -881,184 +1157,64 @@ In this section, you will:
             }
         }
     });
-   
+
+   /* ... Truncated CameraInfo Monitoring Code */
+
 })();    
 ```
 
-### 7.5 Initialize Animation Drivers of Cube, Tetrahedron & Cylinder
+### 6.5 Animation Driver
 
 In this section, you will:
-1. Set up **Animation Driver** variables of **Cube**, **Tetrahedron** & **Cylinder**.
-
-1. Bind **Animation** to the z-axis position signal of **3D objects**. 
-
-1. Subscribe to **onCompleted** event of the animation and reset properties of the corresponding **3D Object**
+1. Set up **Animation Driver** variables.
+2. Declare arrays to store references to **cubeBlock**, **cylinderBlock**, **tetrahedronBlock** & **waterDropBlock**.
  
-Since **3D objects** can't be created on runtime, we will have to deal with a limited number of **Cubes**, **Tetrahedrons** & **Cylinders**, all of which are created in the **Scene** Panel before runtime. We will have to use and reuse them.
-
-While animating these limited number of **3D objects**, we will have ensure that a **3D object** does not get interrupted or reused until its animation is completed. To acheive this, we use Availability Arrays. 
-
-In simple words, At any given point in time, Availability Arrays tell us which **3D objects** are idle.
-
-As soon as an animation of a **3D object** begins, its availability is set to **false** in the Availability Arrays and is set back to **true** when the animation is completed.
 ```javascript
 /* ... Truncated Imported Modules */
 
 (async function () {
 
-    /* ... Truncated Promise & Variable Declaration Code */
+    /* ... Truncated Promises & Variable Declaration Code */
    
     //==============================================================================
-    // Cube, Cylinder & Tetrahedron Animation variables
+    // Animation variables of cubeBlock, cylinderBlock, tetrahedronBlock, waterDropBlock
     //==============================================================================
  
-    // 3D objects Animation paramters
+    // Blocks Animation paramters
     const timeDriverParameters = {
         durationMilliseconds: 4000,
         loopCount: 1,
         mirror: false
     };
 
-    // Animate 3D objects in Z Axis, starting at -1.8 and ending at 0.15 in 4 seconds
+    // Animate Blocks in Z Axis, starting at -1.8 and ending at 0.15 in 4 seconds
     const linearSampler = Animation.samplers.linear(-1.8, 0.15);
-
-    // Array to store & access cubeTimeDrivers of each invidual cube, cylinder & tetrahedron using index
-    let cubeTimeDrivers = []; 
-    let cylindersTimeDrivers = [];
-    let tetrahedronsTimeDrivers = [];
-    
-    // Array to store & access each invidual cube using index
-    const cubes = [cube1, cube2, cube3, cube4, cube5];  
-    // Array to track Availability of cubes
-    const cubesAvailability = [true, true, true, true, true]; 
-
-    // Array to store & access each invidual cylinder using index
-    const cylinders = [cylinder1, cylinder2, cylinder3, cylinder4, cylinder5]; 
-    // Array to track Availability of cylinders
-    const cylindersAvailability = [true, true, true, true, true];
-
-    // Array to store & access each invidual tetrahedron using index
-    const tetrahedrons = [tetrahedron1, tetrahedron2, tetrahedron3, tetrahedron4, tetrahedron5];
-    // Array to track Availability of tetrahedrons
-    const tetrahedronsAvailability = [true, true, true, true, true];
-  
-    /* ... Truncated Native UI Picker & PersistenceModule Code */
-
-    recording.monitor().subscribe(function (recordingEvent, snapshot) {
-        
-        /* ... Truncated Code */
-
-        if( currentSelectedIndex <= maxLevelUnlocked)
-        {
-            if (recordingEvent.newValue) {
-            
-             /* ... Truncated Code */
-
-             //
-             
-            //==============================================================================
-            // Initialize Animation Drivers
-            //==============================================================================
  
-                // Check array length to determine if the driver was previously initialized
-                if (cubeTimeDrivers.length == 0) {
+    // Array to store & access each invidual cubeBlock using index
+    const cubes = [];
 
-                    // Loop through all the cubes
-                    for (let index = 0; index < cubes.length; index++) {
+    // Array to store & access each invidual cylinderBlock using index
+    const cylinders = [];
 
-                        // Create a new TimeDriver and push it into the array 
-                        cubeTimeDrivers.push(Animation.timeDriver(timeDriverParameters))
-                        
-                        // Create a new animation using the TimeDrivers &  linearSampler. 
-                        // Bind it to the z-axis position signal of the cube
-                        cubes[index].transform.z = Animation.animate(cubeTimeDrivers[index], linearSampler)
-                        
-                        // Hide the cube until the animation begins
-                        cubes[index].hidden = true;
+    // Array to store & access each invidual tetrahedronBlock using index
+    const tetrahedrons = [];
 
-                        // Once the animation it completed, 
-                        // Reset the availability to true
-                        // Reset to original scale, material and hide it
-                        cubeTimeDrivers[index].onCompleted().subscribe(function (event) {
-                            cubesAvailability[index] = true;
-                            cubes[index].transform.scaleX = 0.5;
-                            cubes[index].transform.scaleY = 0.5;
-                            cubes[index].material = kickDrumMaterial;
-                            cubes[index].hidden = true;
+    // Array to store & access each invidual waterDropBlock using index
+    const droplets = [];
+  
+    /* ... Truncated Native UI Picker, PersistenceModule, Recording Monitor & CameraInfo Monitor Code*/
 
-                        });
-
-                    }
-
-                    // Loop through all the cylinders
-                    for (let index = 0; index < cylinders.length; index++) {
-
-                        // Create a new TimeDriver and push it into the array 
-                        cylindersTimeDrivers.push(Animation.timeDriver(timeDriverParameters))
-                        
-                        // Create a new animation using the TimeDrivers &  linearSampler. 
-                        // Bind it to the z-axis position signal of the cylinder
-                        cylinders[index].transform.z = Animation.animate(cylindersTimeDrivers[index], linearSampler)
-                        
-                        // Hide the cube until the animation begins
-                        cylinders[index].hidden = true;
-
-                        // Once the animation it completed, 
-                        // Reset the availability to true
-                        // Reset to original scale, material and hide it
-                        cylindersTimeDrivers[index].onCompleted().subscribe(function (event) {
-                            cylindersAvailability[index] = true;
-                            cylinders[index].transform.scaleX = 0.5;
-                            cylinders[index].transform.scaleY = 0.3;
-                            cylinders[index].material = hiHatMaterial;
-                            cylinders[index].hidden = true;
-
-                        });
-
-                    }
-
-                    // Loop through all the tetrahedrons
-                    for (let index = 0; index < tetrahedrons.length; index++) {
-
-                        // Create a new TimeDriver and push it into the array 
-                        tetrahedronsTimeDrivers.push(Animation.timeDriver(timeDriverParameters))
-                        
-                        // Create a new animation using the TimeDrivers &  linearSampler. 
-                        // Bind it to the z-axis position signal of the tetrahedron
-                        tetrahedrons[index].transform.z = Animation.animate(tetrahedronsTimeDrivers[index], linearSampler)
-                        
-                        // Hide the cube until the animation begins
-                        tetrahedrons[index].hidden = true;
-                        
-                        // Once the animation it completed, 
-                        // Reset the availability to true
-                        // Reset to original scale, material and hide it
-                        tetrahedronsTimeDrivers[index].onCompleted().subscribe(function (event) {
-                            tetrahedronsAvailability[index] = true;
-                            tetrahedrons[index].transform.scaleX = 0.8;
-                            tetrahedrons[index].transform.scaleZ = 0.8;
-                            tetrahedrons[index].material = snareMaterial;
-                            tetrahedrons[index].hidden = true;
-
-                        });
-
-                    }
-
-                }  
-     
-            }
-        }
-    });
-   
 })();   
 ```
-### 7.6 Animating 3D Objects based on Level Data
+
+
+### 6.6 Animating Blocks based on Level Data
  ![animating_objects.gif](files/screenshots/animating_objects.gif)
  
 In this section, you will:
-1. Read **levelJson** data and animate **3D Objects** accordingly.
+1. Read **levelJson** data, dynamically instantiate **Blocks** and animate them accordingly.
 
-2. Reset elements when a level has ended.
+2. Reset **Scene Objects** when a level has ended.
     
 3. Unlock next level based on user's score and save progress using **PersistenceModule**.
 
@@ -1121,40 +1277,106 @@ In this section, you will:
                             // Based on the sound data from levelJson animate a cube/cylinder/tetrahedron.
                             switch (sound) {
                                 case "k":
-                                    
-                                    //Locate the index of the first available cube
-                                    availableIndex = cubesAvailability.indexOf(true);
 
-                                    //Make it visible
-                                    cubes[availableIndex].hidden = false;
+                                    //Dynamically Instantiate cubeBlock
+                                    Blocks.instantiate('cubeBlock').then(function (block) {
+                                        
+                                        // Create a new TimeDriver
+                                        const timeDriver = Animation.timeDriver(timeDriverParameters);
 
-                                    //Make it unavailable by setting its availability to false
-                                    cubesAvailability[availableIndex] = false;
+                                        // Create a new animation using the TimeDriver &  linearSampler. 
+                                        // Bind it to the z-position signal of the cubeBlock
+                                        block.inputs.setScalar("z-position", Animation.animate(timeDriver, linearSampler))
+                                        
+                                        //Start the Animation
+                                        timeDriver.start();
+                                        
+                                        //Based on the value of frontCamera, add cubeBlock as a child to frontCameraModelContainer/backCameraModelContainer
+                                        frontCamera ? frontCameraModelContainer.addChild(block) : backCameraModelContainer.addChild(block);
+                                        
+                                        //Store referece to the newly created cubeBlock
+                                        cubes.push(block)
 
-                                    //Start the Animation
-                                    cubeTimeDrivers[availableIndex].reset();
-                                    cubeTimeDrivers[availableIndex].start();
-    
+                                        // Once the animation it completed
+                                        timeDriver.onCompleted().subscribe(function (event) {
+
+                                            //Destroy the cubeBlock
+                                            Scene.destroy(block);
+
+                                            //Remove it from the array
+                                            cubes.shift()
+
+                                        });
+
+                                    });
+
                                     break;
-    
+
                                 case "h":
-    
-                                    availableIndex = cylindersAvailability.indexOf(true);
-                                    cylinders[availableIndex].hidden = false;
-                                    cylindersAvailability[availableIndex] = false;
-                                    cylindersTimeDrivers[availableIndex].reset();
-                                    cylindersTimeDrivers[availableIndex].start();
-    
+
+                                    Blocks.instantiate('cylinderBlock').then(function (block) {
+
+                                        const timeDriver = Animation.timeDriver(timeDriverParameters);
+                                        block.inputs.setScalar("z-position", Animation.animate(timeDriver, linearSampler))
+
+                                        timeDriver.start();
+                                        frontCamera ? frontCameraModelContainer.addChild(block) : backCameraModelContainer.addChild(block);
+                                        cylinders.push(block)
+
+                                        timeDriver.onCompleted().subscribe(function (event) {
+
+                                            Scene.destroy(block);
+                                            cylinders.shift()
+
+                                        });
+
+                                    });
+
                                     break;
-    
+
                                 case "s":
-    
-                                    availableIndex = tetrahedronsAvailability.indexOf(true);
-                                    tetrahedrons[availableIndex].hidden = false;
-                                    tetrahedronsAvailability[availableIndex] = false;
-                                    tetrahedronsTimeDrivers[availableIndex].reset();
-                                    tetrahedronsTimeDrivers[availableIndex].start();
-    
+
+                                    Blocks.instantiate('tetrahedronBlock').then(function (block) {
+
+                                        const timeDriver = Animation.timeDriver(timeDriverParameters);
+                                        block.inputs.setScalar("z-position", Animation.animate(timeDriver, linearSampler))
+
+                                        timeDriver.start();
+                                        frontCamera ? frontCameraModelContainer.addChild(block) : backCameraModelContainer.addChild(block);
+                                        tetrahedrons.push(block)
+
+                                        timeDriver.onCompleted().subscribe(function (event) {
+
+                                            Scene.destroy(block);
+                                            tetrahedrons.shift()
+
+                                        });
+
+                                    });
+
+                                    break;
+
+
+                                case "wd":
+
+                                    Blocks.instantiate('waterDropBlock').then(function (block) {
+
+                                        const timeDriver = Animation.timeDriver(timeDriverParameters);
+                                        block.inputs.setScalar("z-position", Animation.animate(timeDriver, linearSampler))
+
+                                        timeDriver.start();
+                                        frontCamera ? frontCameraModelContainer.addChild(block) : backCameraModelContainer.addChild(block);
+                                        droplets.push(block)
+
+                                        timeDriver.onCompleted().subscribe(function (event) {
+
+                                            Scene.destroy(block);
+                                            droplets.shift()
+
+                                        });
+
+                                    });
+
                                     break;
                                 
                             }
@@ -1252,14 +1474,16 @@ In this section, you will:
             }
         }
     });
+    
+    /* ... Truncated CameraInfo Monitor Code*/
    
 })();   
 ```
 
-### 7.7 Monitoring Signal Power, Differentiate Sounds and Identify Hits
+### 6.7 Monitor Signal Power, Differentiate Sounds and Identify Hits
 
 In this section, you will:
-1. **Monitor Signal Power**:Subscribe to changes in Signal Power of **band1** or **band4** or **band7** exceeding threshold of  **0.75**. Compare the Signal Power of the specific band with other bands at that instance and receive the result as Snapshot. 
+1. **Monitor Signal Power**: Subscribe to changes in Signal Power of **band1**, **band2**, **band4** & **band7**. Compare the Signal Power of the specific band with other bands at the given instance and receive the result as Snapshot. 
 
 2. **Differentiate Sounds**:Use the result from Snapshot to check for conditions and identify sound detected in the **Mircrophone Audio**
     
@@ -1267,7 +1491,7 @@ In this section, you will:
 
     1. User produced a sound which was differentiated by the effect.
 
-    2. **3D Object** corresponding to the sound was present on the platform at that very instance.
+    2. **Block** corresponding to the sound was present on the platform at that very instance.
 
 4. For every Identified hit, score is incremented.
 
@@ -1277,7 +1501,7 @@ In this section, you will:
 
 (async function () {
 
-    /* ... Truncated Promise & Variable Declaration Code */
+    /* ... Truncated Promises & Variable Declaration Code */
    
     //==============================================================================
     // Monitoring Signal Power, Detecting Sounds and Hits
@@ -1287,35 +1511,33 @@ In this section, you will:
     // Subscribe to receive events when value of band1(Kick Drum) Signal Power has exceeded threshold value (Condition A)
     band1.gt(0.75).monitor().subscribeWithSnapshot(
         {
-            // Check if band1(Kick Drum) Signal Power was greater than band4(Snare)  (Condition B)
-            // Check if band1(Kick Drum) Signal Power has not exceeded threshold value (Condition C)
+            //Check if band1(Kick Drum) Signal Power has not exceeded threshold value (Condition B)
+            // Check if band1(Kick Drum) Signal Power was greater than band4(Snare) (Condition C)
+            // Check if band1(Kick Drum) Signal Power was greater than band2(Water Drop) (Condition D)
             "greaterThanSnare": band1.gt(band4),
-            "snareBelowThreshold": band4.lt(0.75)
+            "snareBelowThreshold": band4.lt(0.75),
+            "greaterThanWaterDrop": band1.gt(band2),
         }, function (event, snapshot) {
 
-            // If Condition A, B & C are true then it is a confirmation that Kick Drum was detected.
-            if (event.newValue && snapshot.greaterThanSnare && snapshot.snareBelowThreshold) {
-                 
+            // If Condition A, B, C & D are true then it is a confirmation that Kick Drum was detected.
+            if (event.newValue  && snapshot.greaterThanSnare && snapshot.snareBelowThreshold && snapshot.greaterThanWaterDrop) {
+
                 // SoundType is set to KICK & sent to the Patch Editor
-                Patches.inputs.setScalar("soundType",soundType.KICK);
- 
+                Patches.inputs.setScalar("soundType", soundType.KICK);
+
                 //Loop through all the cubes to determine if there is a cube present on top of the platform circle at that very instance
                 for (let index = 0; index < cubes.length; index++) {
 
-                    // Obtain the position of the cubes in the Z Axis
-                    const z = cubes[index].transform.z.pinLastValue();
+                    // Obtain the position of the cubeBlock in the Z Axis
+                    const z = cubes[index].outputs.getScalarOrFallback("z-position", -1).pinLastValue();
 
-                    //Check if the cube's z values is within the platform range.
+                    //Check if the cubeBlock's z values is within the platform range.
                     if (z > -0.3 && z < -0.1) {
 
-                        // Hit is detected
-                        // Reduce the scale of cube and change its material
-                        Diagnostics.log("hit" + index + " " + z)
-                        
-                        cubes[index].transform.scaleX = 0.4;
-                        cubes[index].transform.scaleY = 0.4;
-
-                        cubes[index].material = kickDrumHitMaterial;
+                        //Hit is detected
+                        //Update cubeBlock's "hit" variable to true to notify that it was hit.
+                        //cubeBlock will use this update to perform hit animation, change visibility of items etc;
+                        cubes[index].inputs.setBoolean("hit", true);
 
                         //Update the score
                         scoreTextValue++;
@@ -1329,16 +1551,15 @@ In this section, you will:
                     }
                 }
 
-                //When condition Condition A, B & C are true, rippleStatus is set to true & sent to the Patch Editor
-                Patches.inputs.setBoolean("rippleStatus",1);
+                //When condition Condition A, B, C & D are true, rippleStatus is set to true & sent to the Patch Editor
+                Patches.inputs.setBoolean("rippleStatus", 1);
 
             }
 
-            
-            if(!event.newValue)
-            {   
+
+            if (!event.newValue) {
                 //When condition Condition A is false, rippleStatus is set to true & sent to the Patch Editor
-                Patches.inputs.setBoolean("rippleStatus",0);
+                Patches.inputs.setBoolean("rippleStatus", 0);
 
             }
 
@@ -1348,24 +1569,21 @@ In this section, you will:
     // SNARE        
     band4.gt(0.75).monitor().subscribeWithSnapshot(
         {
-            "greaterThanBass": band4.gt(band1),
-            "bassBelowThreshold": band1.lt(0.75)
+            "greaterThanKickDrum": band4.gt(band1),
+            "bassBelowThreshold": band1.lt(0.75),
         }, function (event, snapshot) {
 
-            if (event.newValue && snapshot.greaterThanBass && snapshot.bassBelowThreshold) {
-                Patches.inputs.setScalar("soundType",soundType.SNARE);
- 
+            if (event.newValue && snapshot.greaterThanKickDrum && snapshot.bassBelowThreshold) {
+                Patches.inputs.setScalar("soundType", soundType.SNARE);
+
                 for (let index = 0; index < tetrahedrons.length; index++) {
 
-                    const z = tetrahedrons[index].transform.z.pinLastValue();
+                    const z = tetrahedrons[index].outputs.getScalarOrFallback("z-position", -1).pinLastValue();
 
                     if (z > -0.3 && z < -0.1) {
-                        Diagnostics.log("hit" + index + " " + z)
 
-                        tetrahedrons[index].transform.scaleX = 0.7;
-                        tetrahedrons[index].transform.scaleY = 0.7;
+                        tetrahedrons[index].inputs.setBoolean("hit", true);
 
-                        tetrahedrons[index].material = snareHitMaterial;
                         scoreTextValue++;
                         if (scoreTextValue < 10) {
                             scoreText.text = "0" + scoreTextValue;
@@ -1377,15 +1595,12 @@ In this section, you will:
                     }
                 }
 
-                Patches.inputs.setBoolean("rippleStatus",1);
-
+                Patches.inputs.setBoolean("rippleStatus", 1);
             }
 
-            
-            if(!event.newValue)
-            {
-                Patches.inputs.setBoolean("rippleStatus",0);
 
+            if (!event.newValue) {
+                Patches.inputs.setBoolean("rippleStatus", 0);
             }
 
         });
@@ -1393,25 +1608,23 @@ In this section, you will:
     // HI-HAT
     band7.gt(0.6).monitor().subscribeWithSnapshot(
         {
-            "snareBelowThreshold": band4.lt(0.75)
+            "snareBelowThreshold": band4.lt(0.75),
+            "energy": band7
         }
-       ,function (event, snapshot) {
+        , function (event, snapshot) {
 
             if (event.newValue && snapshot.snareBelowThreshold) {
-                
-                Patches.inputs.setScalar("soundType",soundType.HIHAT);
-                
+
+                Patches.inputs.setScalar("soundType", soundType.HIHAT);
+
                 for (let index = 0; index < cylinders.length; index++) {
 
-                    const z = cylinders[index].transform.z.pinLastValue();
+                    const z = cylinders[index].outputs.getScalarOrFallback("z-position", -1).pinLastValue();
 
                     if (z > -0.3 && z < -0.1) {
-                        Diagnostics.log("hit" + index + " " + z)    
-                        
-                        cylinders[index].transform.scaleX = 0.4;
-                        cylinders[index].transform.scaleZ = 0.4;
 
-                        cylinders[index].material = hiHatHitMaterial;
+                        cylinders[index].inputs.setBoolean("hit", true);
+
                         scoreTextValue++;
                         if (scoreTextValue < 10) {
                             scoreText.text = "0" + scoreTextValue;
@@ -1423,26 +1636,65 @@ In this section, you will:
                     }
                 }
 
-                Patches.inputs.setBoolean("rippleStatus",1);
-
+                Patches.inputs.setBoolean("rippleStatus", 1);
             }
 
-            if(!event.newValue)
-            {
-                Patches.inputs.setBoolean("rippleStatus",0);
+            if (!event.newValue) {
+                Patches.inputs.setBoolean("rippleStatus", 0);
+            }
 
+        });
+
+
+    // WATER DROP
+    band2.gt(0.6).monitor().subscribeWithSnapshot(
+        {
+            "greaterThanKickDrum": band2.gt(band1),
+            "greaterThanSnare": band2.gt(band4),
+            "snareBelowThreshold": band4.lt(0.75),
+        }
+        , function (event, snapshot) {
+
+            if (event.newValue && snapshot.greaterThanKickDrum && snapshot.greaterThanSnare && snapshot.snareBelowThreshold) {
+
+                Patches.inputs.setScalar("soundType", soundType.WATERDROP);
+
+                for (let index = 0; index < droplets.length; index++) {
+
+                    const z = droplets[index].outputs.getScalarOrFallback("z-position", -1).pinLastValue();
+
+                    if (z > -0.3 && z < -0.1) {
+
+                        droplets[index].inputs.setBoolean("hit", true);
+
+                        scoreTextValue++;
+                        if (scoreTextValue < 10) {
+                            scoreText.text = "0" + scoreTextValue;
+                        } else {
+                            scoreText.text = "" + scoreTextValue;
+                        }
+
+                        break;
+                    }
+                }
+
+                Patches.inputs.setBoolean("rippleStatus", 1);
+            }
+
+            if (!event.newValue) {
+                Patches.inputs.setBoolean("rippleStatus", 0);
             }
 
         });
      
-    /* ... Truncated Native UI Picker, PersistenceModule & Recording Monitor Code*/
+    /* ... Truncated Native UI Picker, PersistenceModule, Recording Monitor & CameraInfo Monitor Code*/
 
 })();   
 ```
 
-## 8. Patch Editor
+## 7. Patch Editor
 
-### 8.1 Signal Senders
+### 7.1 Signal Senders
 
 Access variables sent from script to the Patch Editor.
 
@@ -1454,7 +1706,7 @@ Access variables sent from script to the Patch Editor.
 
 ![signal_senders_patches.jpg](files/screenshots/signal_senders_patches.jpg)
 
-### 8.2 Level Music
+### 7.2 Level Music
 
 Let's create patches required to play background music of each level.
 
@@ -1476,7 +1728,7 @@ Let's create patches required to play background music of each level.
 
 8. Pass output of **videoRecording** patch as a **Variable To  Script** called **recording**.
 
-### 8.3 Level Introduction
+### 7.3 Level Introduction
 
 Let's create patches required to play **Level Introduction Audio** of unlocked levels as and when the user selects them on **Picker**.
 
@@ -1492,7 +1744,7 @@ Let's create patches required to play **Level Introduction Audio** of unlocked l
 
 2. Connect output of **Audio Player** to **Audio** input of **levelIntroSpeaker** patch.
 
-### 8.4 Triggered UI
+### 7.4 Triggered UI
 
 Let's create patches to transform **Camera Texture** & **Materials**.
 
@@ -1506,7 +1758,7 @@ Let's create patches to transform **Camera Texture** & **Materials**.
 
 ![ripple_patches](files/screenshots/ripple_patches.jpg)
 
-3. Set **Color** value of first, second and third **Custom Ripple Animation** patches to **#ff55ff**, **#55ffff** & **#aaff00** respectively.
+3. Set **Color** value of first, second and third **Custom Ripple Animation** patches to **#ff55ff**, **#55ffff**, **#aaff00** and **#0055ff** respectively.
 
 4. Try turning **On & Off** each **Custom Ripple Animation** patch to view them in Simulator.
 
@@ -1564,9 +1816,9 @@ Now, perform color manipulations to **cameratexture** based on the values of **h
     ![lightness.gif](files/screenshots/lightness.gif)
   
 
-## 9. Next Steps
+## 8. Next Steps
 Some cool ideas for further development
-- Back Camera levels with Plane/Target tracker
-- Recognize more sounds
-- Enhance confettis using Sprite Sheets
+- Level JSON generation from .mp3 files using Pytorch's [TorchAudio](https://pytorch.org/audio/stable/index.html#torchaudio)
+- Recognition of sounds based on patterns 📊 in signal power of bands instead of signal values.
+- Enhancement of [Confettis using Sprite Sheets](https://sparkar.facebook.com/ar-studio/learn/tutorials/sprite-sheets)
  
